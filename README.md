@@ -74,7 +74,8 @@ After obtaining the position of garbage in the image, the program will calculate
 
 
 ## Demo Video
-[Test Video](https://bionicdl.feishu.cn/file/boxcnrVm5QLV5pRB1ziDfSMI4yc)
+[Test Video1](https://bionicdl.feishu.cn/file/boxcnnREvnRSeLRXvhLtISQo6Zf?from=from_copylink)
+[Test Video2](https://bionicdl.feishu.cn/file/boxcnrVm5QLV5pRB1ziDfSMI4yc)
 
 ## Problems and Solutions
 
