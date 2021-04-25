@@ -24,11 +24,11 @@ So theoretically only two calibration points are needed to solve $$^{Base}_{Cam}
 
 
 #### Principle of 3D Calibration
-1. Start the Franka robotic arm and adjust the end position of the robotic arm.
-2. Fix the calibration board and make it face the camera.
-3. Open the cail3D.yaml file and modify the following parameters: the initial posture of the robot arm, the grid step length, the offset of the calibration plate relative to the end flange of the robot arm
-4. Run EyeOnBase.py, the robotic arm will start to walk the grid. Wait for the end of the robot arm movement to complete the calibration. So we can get the calibration acquisition data file *.npz and the hand-eye matrix *.npy.
-5. Select four points on the conveyor belt in the 3D view, use plane_calculate.py to calculate the filter plane, and finally use the parameters of the filter plane in the main program
+1. Start the Franka robotic arm and adjust its the end to a moderate position.
+2. Install the calibration board and make it face the camera.
+3. Open the cail3D.yaml file and modify the following parameters: the initial posture of the robot arm, the grid step length, the offset of the calibration plate relative to the end effector of the robotic arm.
+4.  Run EyeOnBase.py, and the robotic arm will start to walk the grid. Wait for completion of the calibration. The calibration process will generate the acquisition data file *.npz and the hand-eye matrix file *.npy.
+5. Select four points on the conveyor belt in the 3D view, and use plane_calculate.py to calculate the filter plane. Finally, copy the parameters of the filter plane and paste them in the proper place in main.py.
 
 ### 6D Picking
 
@@ -80,6 +80,7 @@ After obtaining the position of garbage in the image, the program will calculate
 
 ### Problem: The end-point problem between using Franka hand or not.
 After doing 3D eye to hand calibration, we run the 6D picking code and find the position and posture we want has a constant off-set between the real word robot arm position. After several tests, we find the problem. When we do 3D clibration, we choose 'none end effctor'. At this time, the end point of robot arm is the frange at the end of robot arm. However, when we do 6D picking, we choose 'Franka hand' as end effector, the end point and the frame will change into Tool Center Point（TCP). Finally, we decide to install the fiducial marker and franka hand together and change the End_to_Flange matrix. 
+<img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Problem_Solutions_1.png" width="50%">
 
 ### Problem:The picking error is large after 3D calibration 
 To begin with, our 3D calibration's performance is not good enough. Here is our testing data.
