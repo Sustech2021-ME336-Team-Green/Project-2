@@ -80,7 +80,8 @@ After obtaining the position of garbage in the image, the program will calculate
 
 ### Problem: The end-point problem between using Franka hand or not.
 After doing 3D eye to hand calibration, we run the 6D picking code and find the position and posture we want has a constant off-set between the real word robot arm position. After several tests, we find the problem. When we do 3D clibration, we choose 'none end effctor'. At this time, the end point of robot arm is the frange at the end of robot arm. However, when we do 6D picking, we choose 'Franka hand' as end effector, the end point and the frame will change into Tool Center Point（TCP). Finally, we decide to install the fiducial marker and franka hand together and change the End_to_Flange matrix. 
-<img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Problem_Solutions_1.png" width="50%">
+
+<img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Problem_Solutions_1.png" width="50%"><img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Problem_Solutions_2.png" width="50%">
 
 ### Problem:The picking error is large after 3D calibration 
 To begin with, our 3D calibration's performance is not good enough. Here is our testing data.
