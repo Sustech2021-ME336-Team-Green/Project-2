@@ -9,8 +9,18 @@ The manipulator we used in the experiment is Franka Emika Panda, which is a 7-Do
 ## Experiment Procedure
 
 ### 3D Calibration
+#### Principle of 3D Calibration
 The goal of 3D hand-eye calibration is to obtain a hand-eye transformation matrix, which is used to describe the relative spatial pose between the robotic arm and the camera, so as to convert a certain point p (x, y, z) in the camera coordinate system into a mechanical point p'(x', y', z') under the arm base coordinates.
 
+![Principle_of_3D_Calibration_1](https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Principle_of_3D_Calibration_1.png)
+![Principle_of_3D_Calibration_2](https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Principle_of_3D_Calibration_2.png)
+
+In the process, we collected multiple sets of images of the calibration board and read the position of the board center in the camera frame$$^{Cam}_{Marker}p$$. Also, we read the position and posture of TCP(Tool central point) from the feedback of the robotic arm and use them to calculate the homogenous transformation matrix from the base to TCP $$^{Base}_{TCP}H$$. Plus, the position of the center of the calibration board $$^{TCP}_{Marker}p$$can be measured. Thus,$$^{Base}_{Cam}H$$ can be solved. In this assignment, the numerical SVD method is applied to obtain the optimal solution of $$^{Base}_{Cam}H$$.
+
+The equation to be solved is in the form $$Xa=b$$, where $$X$$ is an unknown homogeneous transformation matrix to be solved. Since $$X$$ describes a transformation which can be uniquely determined by 6 independent unknown variables (x, y, z, yaw, pitch, roll), and using one calibration point a set of three linear equations can be generated:
+ $$\begin{bmatrix}x_1^{T} \\ x_2^{T}\\x_3^{T}\\c\end{bmatrix}a=b, $$where $$c = [0\ 0\ 0\ 1]$$
+$$\Rightarrow \left\{\begin{aligned}x_1^{T}a=b_1\quad(1) \\ x_2^{T}a=b_2 \quad (2)\\ x_3^{T}a=b_3 \quad (3)\end{aligned} \right.$$
+So theoretically only two calibration points are needed to solve $$^{Base}_{Cam}H$$. However, to make the calibration results more accurate, we have the robotic arm walk a 4×4 grid so that the calibration error can be averaged. 
 
 
 #### Principle of 3D Calibration
