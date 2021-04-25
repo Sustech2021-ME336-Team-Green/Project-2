@@ -11,7 +11,7 @@ The manipulator we used in the experiment is Franka Emika Panda, which is a 7-Do
 ### 3D Calibration
 The goal of 3D hand-eye calibration is to obtain a hand-eye transformation matrix, which is used to describe the relative spatial pose between the robotic arm and the camera, so as to convert a certain point p (x, y, z) in the camera coordinate system into a mechanical point p'(x', y', z') under the arm base coordinates.
 
-By collecting multiple sets corresponding images containing the calibration board, the coordinates in the camera coordinate system are obtained through visual recognition, so that we can obtain a set of corresponding points in the two coordinate systems. To solve the equation XA=B, we need to get at least four points.In this experiment, we change the end point of robot arm and get a 4*4*4 point set. Then use the above equation to calculate the numerical optimal solution of the hand-eye matrix through the SVD method to get the optimal estiamtion of transfer matrix between base and camera.
+
 
 #### Principle of 3D Calibration
 1. Start the Franka robotic arm and adjust the end position of the robotic arm.
@@ -64,7 +64,7 @@ After obtaining the position of garbage in the image, the program will calculate
 
 
 ## Demo Video
-
+[Test Video](https://bionicdl.feishu.cn/file/boxcnrVm5QLV5pRB1ziDfSMI4yc)
 
 ## Problems and Solutions
 
