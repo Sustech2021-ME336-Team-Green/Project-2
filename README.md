@@ -9,14 +9,130 @@ The manipulator we used in the experiment is Franka Emika Panda, which is a 7-Do
 ## Experiment Procedure
 
 ### 3D Calibration
+The goal of 3D hand-eye calibration is to obtain a hand-eye transformation matrix, which is used to describe the relative spatial pose between the robotic arm and the camera, so as to convert a certain point p (x, y, z) in the camera coordinate system into a mechanical point p'(x', y', z') under the arm base coordinates.
+
+By collecting multiple sets corresponding images containing the calibration board, the coordinates in the camera coordinate system are obtained through visual recognition, so that we can obtain a set of corresponding points in the two coordinate systems. To solve the equation XA=B, we need to get at least four points.In this experiment, we change the end point of robot arm and get a 4*4*4 point set. Then use the above equation to calculate the numerical optimal solution of the hand-eye matrix through the SVD method to get the optimal estiamtion of transfer matrix between base and camera.
 
 #### Principle of 3D Calibration
+1. Start the Franka robotic arm and adjust the end position of the robotic arm.
+2. Fix the calibration board and make it face the camera.
+3. Open the cail3D.yaml file and modify the following parameters: the initial posture of the robot arm, the grid step length, the offset of the calibration plate relative to the end flange of the robot arm
+4. Run EyeOnBase.py, the robotic arm will start to walk the grid. Wait for the end of the robot arm movement to complete the calibration. So we can get the calibration acquisition data file *.npz and the hand-eye matrix *.npy.
+5. Select four points on the conveyor belt in the 3D view, use plane_calculate.py to calculate the filter plane, and finally use the parameters of the filter plane in the main program
+
+### 6D Picking
+
+#### Initialization
+Before picking, the prpgram needs to obtain some information
+1. Controler parameters.(velocity, acceleration, home joint and so on).
+2. Transform relationship between camera image and fraka position based on the calibration result. 
+3. Trained Yolo5 network
+4. Camera parameters
+After obtaining this parameters, the franka will move to the home points. And we define the max moving area of Franka.
+```
+""" Initialization """
+# camera and robot driver
+print('work_dir: ', _root_path)
+robot = FrankaController('./configs/basic_config/franka.yaml')
+camera = Realsense('./configs/basic_config/camera_rs_d435.yaml')
+object_detector = Yolo5('./configs/basic_config/yolov5_cfg.yaml')
+hand_eye_matrix = np.load('./configs/E_T_B.npy')
+
+home_joints = [-0.03, -1.3, 0.05, -2.2, 0.08, 1.15, 0.7]
+robot.move_j(home_joints, 1.5, 1.5)    
+place_xyzrt = [0.3, -0.5, 0.4, 3.14, 0.0, -1.57]
+crop_bounding = [250, 500, 320, 1000]
+```
+
+
+#### Detection
+In this part, we obtain the color image from Realsence and use trained YOLO5 model to recognize the trash in the crop_bouding of the image.
+```
+frame = camera.get_frame()
+color = frame.color_image[0]
+depth_img = frame.depth_image[0]
+# region_class = object_detector.detect(color)
+ret, uv, cla, cfi = detectObject(object_detector, color, crop_bounding=[250, 500, 320, 1000])
+```
+After obtaining the position of garbage in the image, the program will calculate the position of garbage relative to the camera coordinate system according to the pinhole imaging principle.
+
+
+
+#### Transformation
+
+#### Moving
+
 
 ## Demo Video
 
+
 ## Problems and Solutions
 
+### Problem: The end-point problem between using Franka hand or not.
+After doing 3D eye to hand calibration, we run the 6D picking code and find the position and posture we want has a constant off-set between the real word robot arm position. After several tests, we find the problem. When we do 3D clibration, we choose 'none end effctor'. At this time, the end point of robot arm is the frange at the end of robot arm. However, when we do 6D picking, we choose 'Franka hand' as end effector, the end point and the frame will change into Tool Center Point（TCP). Finally, we decide to install the fiducial marker and franka hand together and change the End_to_Flange matrix. 
+
+### Problem:The picking error is large after 3D calibration 
+To begin with, our 3D calibration's performance is not good enough. Here is our testing data.
+
+|       | Position x(camera frame) | Position y(camera frame) | Error x(base frame) | Error y(base frame) |
+| ----  | ------------------------ | ------------------------ | ------------------- | ------------------- |
+| Test1 | 347pix                   | 387pix                   | -4cm                | -17.5cm             |
+| Test2 | 534pix                   | 385pix                   | -4cm                | -2cm                |
+| Test3 | 652pix                   | 393pix                   | -4cm                | 0.5cm               |
+| Test4 | 810pix                   | 406pix                   | -3cm                | 4cm                 |
+| Test5 | 1004pix                  | 406pix                   | -3cm                | 17cm                |
+
+After testing we find the error of x,y is lager when the bottle is far away from calibration initial point. After seeking help from Dr.Wan, and know it is a system error when doing 3D calibration. The calibration error will be large when the work space is far away from the calibration place.
+
+### Solution: Trouble shoot of picking error
+#### Off-set setting problem
+We find there are some problems in the off-set setting, because we fix the calibration board in a different way from the picture in tutorial. The off-set parameter in E_T_F(end point to flange) matrix should be changed according to our practical measurement in our calibration process.
+
+The `cali3D.yaml` file in tutorial.
+```
+E_T_F:
+  - [1,0,0,0.06]
+  - [0,1,0,0.00]
+  - [0,0,1,0.03]
+  - [0,0,0,1]
+OFFSET:
+  x: 0.06
+  y: 0.0
+  z: 0.03
+  ```
+  The correct off-set data.
+  ```
+  E_T_F:
+  - [1,0,0,0.06]
+  - [0,1,0,0.00]      
+  - [0,0,1,-0.1334]
+  - [0,0,0,1]
+OFFSET:
+  x: 0.06
+  y: 0.0
+  z: -0.09
+  ```
+  
+#### Test of 3D calibration result
+  
+#### Test of the bottle's object dection
+  
+#### The problem of camera's intrinsic parameter
+
+
 ## Possible Improvements
+There are several possible improvements.
+1. We may create an environment with a more stable light condition for manipulation. The whole system is placed beside the window, so the light condition is significantly influenced by the sunlight, which may have an impact on vision recognition. Thus, we may draw the curtain and apply a stable light condition.
+2. We may replace the Franka hand with the robotic hand designed by ourselves. This is because the Franka hand does not work well. Its two fingers sometimes cannot clamp when grasping the bottles due to poor connection with its controller. On top of that,the Franka hand might make the bottles deform while grasping because the tips of the hand are rigid. If we have time, we are going to design an end effector with flexible tips.
+3. We may fix our conveyor belt, robotic arm and aluminum gantry together using some structures. This is because they easily move relative to each other with external disturbance like accidental collision or even touch. Calibration needs to be performed once again after this, which causes much trouble for us. The following picture shows a connection structure devised by us. We integrate the camera frame and conveyor belt together and use section bar to limit the location of Franka. With connector, base station can be fixed to conveyer belt and easy to apart. It avoids the relative displacement among camera, Franka and working plantform. Ideally, with this structure, there is no need to calibrate every time before working.
+4. We may apply new methods generating a point cloud which can more accurately depict the shape of the bottle . As is shown in the following figure, the point cloud contains a lot of noise, thus only roughly depicting the shape of the bottle. Therefore, the direction of the end effector approaching the bottle tends to be arbitrary. Its attitude can change significantly even if the position and attitude of the bottle remains the same. This brings us problems:  In some directions, the hand cannot pick up the bottle. If the point cloud is an accurate depiction, the robot arm can effectively decide the most proper direction approaching the item to be grasped according its shape. One possible method to improve the quality of the point cloud is filtering the noise.
+5. We may make the connection between the camera and the computer more stable. The connection between these two sometimes goes wrong, and we have to plug out the wire and plus it in again.
+
 
 ## Contributions
+- System Engineer: Nuofan Qiu
+- Algorithm Engineer: Xin Liu, Yifei Li
+- Software Engineer: Ronghan Xv, Yujian Dong 
+- Data Engineer: Yanzhen Xiang, Shangkun Guo
+- Design Engineer: Yang Xiao, Bowen Hu
 
