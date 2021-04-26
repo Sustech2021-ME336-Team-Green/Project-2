@@ -108,8 +108,9 @@ pick_place(robot, robot, home_joints, temp_pose, temp_pose_up, place_xyzrt)
 
 
 ## Demo Video
-[Test Video1](https://bionicdl.feishu.cn/file/boxcnnREvnRSeLRXvhLtISQo6Zf?from=from_copylink)
-[Test Video2](https://bionicdl.feishu.cn/file/boxcnrVm5QLV5pRB1ziDfSMI4yc)
+- [Test Video1](https://bionicdl.feishu.cn/file/boxcnnREvnRSeLRXvhLtISQo6Zf?from=from_copylink)
+- [Test Video2](https://bionicdl.feishu.cn/file/boxcnrVm5QLV5pRB1ziDfSMI4yc)
+
 <img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/demo.GIF" width="50%">
 
 ## Problems and Solutions
