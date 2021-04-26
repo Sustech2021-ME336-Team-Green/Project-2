@@ -38,7 +38,7 @@ Before picking, the prpgram needs to obtain some information
 2. Transform relationship between camera image and fraka position based on the calibration result. 
 3. Trained Yolo5 network
 4. Camera parameters
-After obtaining this parameters, the franka will move to the home points. And we define the max moving area of Franka.
+After obtaining this parameters, the franka will move to the home points. And we define the moving area limit of the end effector.
 ```
 """ Initialization """
 # camera and robot driver
@@ -65,17 +65,52 @@ depth_img = frame.depth_image[0]
 ret, uv, cla, cfi = detectObject(object_detector, color, crop_bounding=[250, 500, 320, 1000])
 ```
 After obtaining the position of garbage in the image, the program will calculate the position of bottle in the camera frame according to the pinhole imaging principle. The bottle position is represented by the two endpoints of the diagonal of a rectangular enveloping which almost exactly contains the bottle. 
+In the program, we use a plane filter to remove points which is below the target plane.
+```
+for i in range(len(pc)):
+            if pc[i][0] * plane_model[0] + pc[i][1] * plane_model[1] + pc[i][2] * plane_model[2] + plane_model[3] < 0:
+                new_pc.append(pc[i])
+```
 
 
 #### Transformation
-The program will calculate the pose of the project based on its envelope in the camera frame. With the result of 3D calibration, the program will convert the pose of the object from the camera frame to the robotic base frame.
+The program will calculate the pose of the project based on its envelope in the camera frame. With the result of 3D calibration, the program will convert the position and orientation of the bottle from the camera frame to the robotic base frame. In this part, the program uses a function in the `deepclaw/modules/grasp_planning/GeoGrasp` part.
+```
+from deepclaw.modules.grasp_planning.GeoGrasp import GeoGrasp
+m = GeoGrasp.run(new_pc)
+grasp_matrix = np.reshape(m, (4, 4), order='C')
+grasping_in_base = np.dot(hand_eye_matrix, grasp_matrix)
+```
 
 #### Moving
-After obtaining the position of the object relative to the manipulator arm, the program changes the inverse kinematics through the underlying drive to obtain the Angle of each joint.
+After obtaining the position and orientation of the bottle in the robot base frame, the program uses the inverse kinematics through the underlying drive to obtain the expected angles of each joint. The program uses an E_T_F matrix to calculate the target orientation of the grasp and the pose when the grasp has raised. 
+```
+E_T_F = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0.133], [0, 0, 0, 1]])
+# grasping_in_base = np.dot(grasping_in_base, E_T_F)
+grasping_in_base = np.dot(grasping_in_base, np.linalg.inv(E_T_F))
+r = R.from_matrix(grasping_in_base[0: 3, 0: 3])
+rot = r.as_euler('xyz', degrees=False)
+transfer = grasping_in_base[0:3, 3]
+measure_z = -0.13  # meter
+offset_y = 0.01
+temp_pose = [transfer[0], transfer[1]+offset_y, transfer[2] + measure_z, rot[0], rot[1], rot[2]]
+
+# z offset ,  pick up
+E_T_F = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, -0.03], [0, 0, 0, 1]])
+grasping_in_base = np.dot(grasping_in_base, E_T_F)
+r = R.from_matrix(grasping_in_base[0: 3, 0: 3])
+rot = r.as_euler('xyz', degrees=False)
+transfer = grasping_in_base[0:3, 3]
+temp_pose_up = [transfer[0], transfer[1], transfer[2], rot[0], rot[1], rot[2]]
+
+pick_place(robot, robot, home_joints, temp_pose, temp_pose_up, place_xyzrt)
+```
+
 
 ## Demo Video
 [Test Video1](https://bionicdl.feishu.cn/file/boxcnnREvnRSeLRXvhLtISQo6Zf?from=from_copylink)
 [Test Video2](https://bionicdl.feishu.cn/file/boxcnrVm5QLV5pRB1ziDfSMI4yc)
+<img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/demo.GIF" width="50%">
 
 ## Problems and Solutions
 
