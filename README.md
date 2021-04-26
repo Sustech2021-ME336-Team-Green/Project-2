@@ -64,14 +64,14 @@ depth_img = frame.depth_image[0]
 # region_class = object_detector.detect(color)
 ret, uv, cla, cfi = detectObject(object_detector, color, crop_bounding=[250, 500, 320, 1000])
 ```
-After obtaining the position of garbage in the image, the program will calculate the position of garbage relative to the camera coordinate system according to the pinhole imaging principle.
-
+After obtaining the position of garbage in the image, the program will calculate the position of bottle in the camera frame according to the pinhole imaging principle. The bottle position is represented by the two endpoints of the diagonal of a rectangular enveloping which almost exactly contains the bottle. 
 
 
 #### Transformation
+The program will calculate the pose of the project based on its envelope in the camera frame. With the result of 3D calibration, the program will convert the pose of the object from the camera frame to the robotic base frame.
 
 #### Moving
-
+After obtaining the position of the object relative to the manipulator arm, the program changes the inverse kinematics through the underlying drive to obtain the Angle of each joint.
 
 ## Demo Video
 [Test Video1](https://bionicdl.feishu.cn/file/boxcnnREvnRSeLRXvhLtISQo6Zf?from=from_copylink)
@@ -98,7 +98,7 @@ To begin with, our 3D calibration's performance is not good enough. Here is our 
 After testing we find the error of x,y is lager when the bottle is far away from calibration initial point. After seeking help from Dr.Wan, and know it is a system error when doing 3D calibration. The calibration error will be large when the work space is far away from the calibration place.
 
 ### Solution: Trouble shoot of picking error
-#### Off-set setting problem
+#### 1. Correcting the End_To_Flange matrix according to our installation
 We find there are some problems in the off-set setting, because we fix the calibration board in a different way from the picture in tutorial. The off-set parameter in E_T_F(end point to flange) matrix should be changed according to our practical measurement in our calibration process.
 
 <img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Off-set_setting_problem_1.png" width="50%"><img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Off-set_setting_problem_1.png" width="50%">
@@ -128,7 +128,7 @@ OFFSET:
   z: -0.09
   ```
   
-#### Test of 3D calibration result
+#### 2. Verifying that the calibration results are correct
 Due to the large error of picking, we need to find where the trouble is. 
 
 First, we want to find out how large the calibration error is. So we use a big calibration board which can test how accurate the transformation matrix from the base to the camera $$^{Base}_{Cam}H$$. The tool in opencv can help us find the origin of the big calibration board coordinate (The tip of the arrow on the right side in the following picture). Using $$^{Base}_{Cam}H$$ obtained in the calibration and the position of the origin of the big calibration board read from the camera $$^{Cam}_{Origin}p$$, we can calculate the position of the origin of the calibration board $$^{Base}_{Origin}p$$( $$^{Base}_{Origin}p$$= $$^{Base}_{Cam}H$$ $$^{Cam}_{Origin}p$$). To verify that the calculated$$^{Base}_{Origin}p$$is correct (i.e. Relatively accurate), so that $$^{Base}_{Cam}H$$ obtained in calibration is correct, we control the robotic arm move to this calculated position. By measuring the distance between the TCP of the robot arm and the origin of the big calibration board, we can see that the error is very small (Indicated by the two arrows on the left side in the following picture). This means that our eye to hand calibration result (i.e.  $$^{Base}_{Cam}H$$ obtained in calibration) is correct. 
@@ -139,7 +139,7 @@ Note that the end effector of the robotic arm may not move to the expected posit
 
 <img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Test_of_3D_calibration_result_2.png" width="50%">
   
-#### Test of the bottle's object dection
+#### 3. Verifying that the bottle's object detection result is correct
 We hope to find out whether the problem is in the YOLOV5 object detection process, so we want to figure out how accurate the detection result is. We add a line of code to print out the objection detection result.
 ```
 def detectObject(detector_algo: Yolo5, color, crop_bounding=[300, 720, 300, 1000]):
@@ -162,7 +162,7 @@ The detection result is [481, 311, 543, 475], which should be the uv values of t
 
 The uv values of bottle in realsense-viewer is [487,315,541,475]. This is very close to the result of YOLOV5's detection results. So the detection result is correct.
   
-#### The problem of camera's intrinsic parameter
+#### 4. Finding that the intrinsic parameters of the camera are wrong in the program provided by the course
 In the program provided by the course, the x and y coordinates of the point cloud of the bottle in the base frame are calculated according to the YOLO5's detection result (uv values of the corner two points):
 ```
 for i in range(uv[1], uv[3]):
