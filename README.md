@@ -137,8 +137,7 @@ After testing we find the error of x,y is lager when the bottle is far away from
 #### 1. Correcting the End_To_Flange matrix according to our installation
 We find there are some problems in the off-set setting, because we fix the calibration board in a different way from the picture in tutorial. The off-set parameter in E_T_F(end point to flange) matrix should be changed according to our practical measurement in our calibration process.
 
-<img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Off-set_setting_problem_1.png" width="50%">
-<img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Off-set_setting_problem_2.png" width="50%">
+<img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Off-set_setting_problem_1.png" width="50%"><img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Off-set_setting_probelm_2.png" width="50%">
 
 The `cali3D.yaml` file in tutorial.
 ```
