@@ -137,7 +137,7 @@ After testing we find the error of x,y is lager when the bottle is far away from
 #### 1. Correcting the End_To_Flange matrix according to our installation
 We find there are some problems in the off-set setting, because we fix the calibration board in a different way from the picture in tutorial. The off-set parameter in E_T_F(end point to flange) matrix should be changed according to our practical measurement in our calibration process.
 
-<img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Off-set_setting_problem_1.png" width="50%"><img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Off-set_setting_problem_1.png" width="50%">
+<img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Off-set_setting_problem_1.png" width="50%"><img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Off-set_setting_problem_2.png" width="50%">
 
 The `cali3D.yaml` file in tutorial.
 ```
@@ -194,7 +194,7 @@ def detectObject(detector_algo: Yolo5, color, crop_bounding=[300, 720, 300, 1000
 
 The detection result is [481, 311, 543, 475], which should be the uv values of the two corner points of the bottle. (In the form of [u1, v1, u2, v2]). Then we open the realsense-viewer and find whether the detection result is indeed the uv values of the two corner points. 
 
-<img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Test_of_the_bottle's_object_dection_2.png" width="50%"><img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Test_of_the_bottle's_object_dection_2.png" width="50%">
+<img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Test_of_the_bottle's_object_dection_2.png" width="50%"><img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Test_of_the_bottle's_object_dection_3.png" width="50%">
 
 The uv values of bottle in realsense-viewer is [487,315,541,475]. This is very close to the result of YOLOV5's detection results. So the detection result is correct.
   
