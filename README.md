@@ -137,7 +137,7 @@ After testing we find the error of x,y is lager when the bottle is far away from
 #### 1. Correcting the End_To_Flange matrix according to our installation
 We find there are some problems in the off-set setting, because we fix the calibration board in a different way from the picture in tutorial. The off-set parameter in E_T_F(end point to flange) matrix should be changed according to our practical measurement in our calibration process.
 
-<img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Off-set_setting_problem_1.png" width="50%"><img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Off-set_setting_probelm_2.png" width="50%">
+<img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Off-set_setting_problem_1.png" width="38%" hight="40%">      <img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/Off-set_setting_probelm_2.png" width="50%" hight="200">
 
 The `cali3D.yaml` file in tutorial.
 ```
@@ -210,7 +210,7 @@ for i in range(uv[1], uv[3]):
 ```
 where fx, fy, cx, and cy are intrinsic parameters of the camera.  We did a test to find whether there are problems with the calculated point cloud positions. We compare the position of the plotted point cloud and that of the bottle shown in the camera, as is shown in the following two pictures.
 
-<img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/The_problem_of_camera's_intrinsic_parameter_1.png" width="50%"><img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/The_problem_of_camera's_intrinsic_parameter_2.png" width="50%">
+<img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/The_problem_of_camera's_intrinsic_parameter_1.png" width="35%">   <img src="https://github.com/Sustech2021-ME336-Team-Green/Project-2/blob/main/images/The_problem_of_camera's_intrinsic_parameter_2.png" width="50%">
 We find that the two do not match each other (The x coordinate of the plotted point cloud center is about -0.26, while that of the bottle center in the camera is -0.157).  Since the detection result is correct, we think there may be problems with the intrinsic parameters. It seems that this cannot be true, since the 3D calibration process also involves the camera's intrinsic parameters while its results are correct. However, we find that in calibration, the intrinsic parameters are got from Realsense-SDK automatically (line 4 - line 7):
 ```
 def image_callback(color_image, depth_image, intrinsics):
